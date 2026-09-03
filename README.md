@@ -36,5 +36,15 @@ npm run preview  # serve the build
 
 ## Deploy
 
-Static output — drop `dist/` on any host. Cloudflare Pages / Netlify / Vercel /
-GitHub Pages all work with zero config (build: `npm run build`, output: `dist`).
+Static output — see [`DEPLOY.md`](./DEPLOY.md) for the full walkthrough
+(GitHub → Cloudflare Pages). Short version:
+
+| Setting        | Value             |
+| -------------- | ----------------- |
+| Build command  | `npm run build`   |
+| Output dir     | `dist`            |
+| Node version   | pinned in `.nvmrc` (20.20.2) |
+| Env var        | `SITE_URL` = your live origin, e.g. `https://zhiyuan-dev.pages.dev` |
+
+`public/_headers` sets long-cache for `/_astro/*` and a few security headers —
+Cloudflare Pages and Netlify both read it.
