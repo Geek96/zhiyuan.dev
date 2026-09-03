@@ -1,0 +1,152 @@
+---
+import { nav, site } from "../lib/site";
+import ThemeToggle from "./ThemeToggle.astro";
+
+const here = Astro.url.pathname.replace(/\/$/, "") || "/";
+const isActive = (href: string) => {
+  const h = href.replace(/\/$/, "") || "/";
+  return h === "/" ? here === "/" : here === h || here.startsWith(h + "/");
+};
+---
+
+<header class="nav">
+  <div class="wrap nav-inner">
+    <a href="/" class="brand" aria-label={`${site.name} — home`}>
+      <span class="brand-mark">◆</span>
+      <span class="brand-name">{site.domain}</span>
+    </a>
+
+    <nav class="nav-links" aria-label="Primary">
+      {
+        nav.map((item) => (
+          <a
+            href={item.href}
+            class:list={["nav-link", { active: isActive(item.href) }]}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="nav-actions">
+      <button
+        id="cmdk-trigger"
+        class="cmdk-btn"
+        type="button"
+        aria-label="Open command menu"
+      >
+        <span>Menu</span>
+        <kbd>⌘K</kbd>
+      </button>
+      <ThemeToggle />
+    </div>
+  </div>
+</header>
+
+<style>
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px) saturate(1.4);
+    background: color-mix(in oklab, var(--bg) 72%, transparent);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-inner {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    height: 58px;
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: 0.02em;
+    color: var(--text);
+  }
+  .brand-mark {
+    color: var(--accent-text);
+    font-size: 0.7em;
+    transition: transform 0.5s var(--ease-out);
+  }
+  .brand:hover .brand-mark {
+    transform: rotate(135deg);
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-right: auto;
+    margin-left: 0.5rem;
+  }
+
+  .nav-link {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: 0.02em;
+    color: var(--text-faint);
+    padding: 0.35rem 0.6rem;
+    border-radius: 7px;
+    transition: color 0.18s, background 0.18s;
+  }
+  .nav-link:hover {
+    color: var(--text);
+    background: var(--bg-raised);
+  }
+  .nav-link.active {
+    color: var(--text);
+  }
+  .nav-link.active::before {
+    content: "· ";
+    color: var(--accent-text);
+  }
+
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .cmdk-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 34px;
+    padding: 0 0.7rem;
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--text-dim);
+    transition: color 0.2s, border-color 0.2s, background 0.2s;
+  }
+  .cmdk-btn:hover {
+    color: var(--text);
+    border-color: var(--border-strong);
+    background: var(--bg-raised);
+  }
+  .cmdk-btn kbd {
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    color: var(--text-faint);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 0.05em 0.35em;
+  }
+
+  @media (max-width: 640px) {
+    .nav-links {
+      display: none;
+    }
+    .cmdk-btn span {
+      display: none;
+    }
+  }
+</style>

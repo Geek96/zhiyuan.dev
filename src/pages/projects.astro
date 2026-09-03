@@ -1,0 +1,51 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../layouts/Base.astro";
+import ProjectCard from "../components/ProjectCard.astro";
+
+const order = { active: 0, shipped: 1, experiment: 2, archived: 3 } as const;
+
+const projects = (await getCollection("projects")).sort((a, b) => {
+  const s = order[a.data.status] - order[b.data.status];
+  return s !== 0 ? s : b.data.date.valueOf() - a.data.date.valueOf();
+});
+---
+
+<Base title="Projects" description="Things I've built, shipped, or am still poking at.">
+  <section class="wrap head" data-reveal-group>
+    <span class="kicker" data-reveal><span class="idx">[ / ]</span> Projects</span>
+    <h1 data-reveal>Things I&rsquo;ve built, shipped,<br />or am still poking at.</h1>
+    <p class="lead" data-reveal>
+      A running list. Some are finished, some are permanently 80% done — which is
+      the natural state of a side project.
+    </p>
+  </section>
+
+  <section class="wrap">
+    <div class="grid" data-reveal-group>
+      {projects.map((project) => <ProjectCard project={project} />)}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .head {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+    margin-bottom: clamp(2.5rem, 7vw, 4rem);
+  }
+  .head h1 {
+    font-size: var(--step-3);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
+    gap: 1rem;
+  }
+  @media (min-width: 720px) {
+    .grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>

@@ -1,0 +1,36 @@
+---
+import Base from "../layouts/Base.astro";
+---
+
+<Base title="Not found" description="This page doesn't exist.">
+  <section class="wrap nf" data-reveal-group>
+    <span class="kicker" data-reveal><span class="idx">[ 404 ]</span> Not found</span>
+    <h1 data-reveal>This page wandered off.</h1>
+    <p class="lead" data-reveal>
+      The link is broken or the page moved. No harm done.
+    </p>
+    <div class="nf-links" data-reveal>
+      <a class="arrow-link" href="/">←&nbsp; Home</a>
+      <a class="arrow-link" href="/notes">→&nbsp; Notes</a>
+      <button class="arrow-link" type="button" id="cmdk-trigger">⌘K&nbsp; Search</button>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .nf {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    padding-block: clamp(3rem, 12vw, 8rem);
+  }
+  .nf h1 {
+    font-size: var(--step-4);
+  }
+  .nf-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    margin-top: 1rem;
+  }
+</style>

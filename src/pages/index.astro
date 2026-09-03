@@ -1,0 +1,191 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../layouts/Base.astro";
+import ProjectCard from "../components/ProjectCard.astro";
+import { site } from "../lib/site";
+
+const notes = (await getCollection("notes", ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
+
+const projects = (await getCollection("projects"))
+  .filter((p) => p.data.featured)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 2);
+
+const fmt = (d: Date) =>
+  d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+---
+
+<Base>
+  <section class="wrap hero" data-reveal-group>
+    <p class="kicker" data-reveal>
+      <span class="idx">◆</span>
+      {site.role} <span class="sep">/</span>
+      {site.location}
+    </p>
+
+    <h1 class="hero-title" data-reveal>
+      I build small, careful things<br />
+      for the <span class="em">open web</span>.
+    </h1>
+
+    <p class="lead" data-reveal>
+      I&rsquo;m {site.name} — I like plain HTML, sharp typography, tools that get
+      out of the way, and writing down what I learn. This is my corner of the
+      internet: half notebook, half workshop.
+    </p>
+
+    <div class="hero-links" data-reveal>
+      <a class="arrow-link" href="/projects">→&nbsp; See what I&rsquo;m building</a>
+      <a class="arrow-link" href="/notes">→&nbsp; Read the notes</a>
+      <a class="arrow-link" href={`mailto:${site.email}`}>↗&nbsp; Say hello</a>
+    </div>
+  </section>
+
+  <hr class="rule" />
+
+  <section class="wrap">
+    <div class="section-head">
+      <span class="kicker"><span class="idx">[01]</span> Selected work</span>
+      <a class="arrow-link" href="/projects">All projects</a>
+    </div>
+    <div class="grid" data-reveal-group>
+      {projects.map((project) => <ProjectCard project={project} />)}
+    </div>
+  </section>
+
+  <hr class="rule" />
+
+  <section class="wrap">
+    <div class="section-head">
+      <span class="kicker"><span class="idx">[02]</span> Recent notes</span>
+      <a class="arrow-link" href="/notes">Archive</a>
+    </div>
+    <ul class="notes" data-reveal-group>
+      {
+        notes.map((note) => (
+          <li data-reveal>
+            <a class="note-row" href={`/notes/${note.id}/`}>
+              <time datetime={note.data.date.toISOString()}>
+                {fmt(note.data.date)}
+              </time>
+              <span class="note-title">{note.data.title}</span>
+              <span class="note-go" aria-hidden="true">→</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <hr class="rule" />
+
+  <section class="wrap now-teaser" data-reveal-group>
+    <span class="kicker" data-reveal><span class="idx">[03]</span> Right now</span>
+    <p class="now-line" data-reveal>
+      Currently heads-down on a planning system for my notes, learning to make
+      the web feel handmade again, and reading more fiction than I have in years.
+    </p>
+    <a class="arrow-link" href="/now" data-reveal>→&nbsp; The full /now page</a>
+  </section>
+</Base>
+
+<style>
+  .hero {
+    padding-block: clamp(2rem, 7vw, 5rem) clamp(1rem, 4vw, 2rem);
+    display: flex;
+    flex-direction: column;
+    gap: 1.6rem;
+  }
+  .kicker .sep {
+    opacity: 0.4;
+    margin-inline: 0.15em;
+  }
+  .hero-title {
+    font-size: var(--step-4);
+    max-width: 18ch;
+  }
+  .hero-title .em {
+    font-style: italic;
+    color: var(--accent-text);
+    font-variation-settings: "SOFT" 40, "WONK" 1;
+  }
+  .hero-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem 2rem;
+    margin-top: 0.5rem;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
+    gap: 1rem;
+  }
+
+  .notes {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--border);
+  }
+  .note-row {
+    display: grid;
+    grid-template-columns: 9.5rem 1fr auto;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 1.15rem 0.25rem;
+    border-bottom: 1px solid var(--border);
+    transition: padding-left 0.3s var(--ease-out), background 0.2s;
+  }
+  .note-row:hover {
+    padding-left: 0.9rem;
+    background: linear-gradient(
+      90deg,
+      var(--accent-soft),
+      transparent 40%
+    );
+  }
+  .note-row time {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--text-faint);
+  }
+  .note-title {
+    color: var(--text);
+    font-size: var(--step-1);
+    font-family: var(--font-serif);
+    letter-spacing: -0.01em;
+  }
+  .note-go {
+    color: var(--text-faint);
+    transition: transform 0.3s var(--ease-out), color 0.2s;
+  }
+  .note-row:hover .note-go {
+    color: var(--accent-text);
+    transform: translateX(3px);
+  }
+
+  .now-teaser {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+  }
+  .now-line {
+    font-family: var(--font-serif);
+    font-size: var(--step-2);
+    line-height: 1.4;
+    max-width: 24ch;
+    color: var(--text);
+  }
+
+  @media (max-width: 560px) {
+    .note-row {
+      grid-template-columns: 1fr auto;
+    }
+    .note-row time {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

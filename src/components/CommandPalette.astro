@@ -1,0 +1,327 @@
+---
+import { nav, socials } from "../lib/site";
+
+const items = [
+  ...nav.map((n) => ({
+    label: n.label,
+    hint: n.href,
+    href: n.href,
+    group: "Navigate",
+    external: false,
+  })),
+  ...socials.map((s) => ({
+    label: s.label,
+    hint: s.handle,
+    href: s.href,
+    group: "Elsewhere",
+    external: !s.href.startsWith("/"),
+  })),
+  {
+    label: "Toggle theme",
+    hint: "light / dark",
+    href: "#theme",
+    group: "Actions",
+    external: false,
+  },
+];
+---
+
+<div id="cmdk" class="cmdk" hidden>
+  <div class="cmdk-backdrop" data-close></div>
+  <div class="cmdk-panel" role="dialog" aria-modal="true" aria-label="Command menu">
+    <div class="cmdk-input-row">
+      <span class="cmdk-prompt">›</span>
+      <input
+        id="cmdk-input"
+        type="text"
+        placeholder="Jump to…"
+        autocomplete="off"
+        autocapitalize="off"
+        spellcheck="false"
+      />
+      <kbd>esc</kbd>
+    </div>
+    <ul id="cmdk-list" class="cmdk-list" role="listbox">
+      {
+        items.map((it, i) => (
+          <li
+            class="cmdk-item"
+            role="option"
+            data-href={it.href}
+            data-external={String(it.external)}
+            data-label={it.label.toLowerCase()}
+            data-index={i}
+          >
+            <span class="cmdk-item-label">{it.label}</span>
+            <span class="cmdk-item-hint">{it.hint}</span>
+            <span class="cmdk-item-group">{it.group}</span>
+          </li>
+        ))
+      }
+      <li class="cmdk-empty" hidden>No matches</li>
+    </ul>
+  </div>
+</div>
+
+<style>
+  .cmdk {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: grid;
+    place-items: start center;
+    padding-top: 16vh;
+  }
+  .cmdk[hidden] {
+    display: none;
+  }
+  .cmdk-backdrop {
+    position: absolute;
+    inset: 0;
+    background: color-mix(in oklab, var(--bg) 55%, transparent);
+    backdrop-filter: blur(4px);
+    animation: cmdk-fade 0.18s ease;
+  }
+  .cmdk-panel {
+    position: relative;
+    width: min(34rem, calc(100vw - 2rem));
+    background: var(--bg-raised);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    box-shadow: 0 24px 70px -20px rgba(0, 0, 0, 0.55);
+    overflow: hidden;
+    animation: cmdk-pop 0.22s var(--ease-out);
+  }
+  .cmdk-input-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .cmdk-prompt {
+    font-family: var(--font-mono);
+    color: var(--accent-text);
+  }
+  #cmdk-input {
+    flex: 1;
+    background: none;
+    border: 0;
+    outline: none;
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: var(--step-0);
+  }
+  .cmdk-input-row kbd {
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--text-faint);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 0.1em 0.4em;
+  }
+  .cmdk-list {
+    list-style: none;
+    margin: 0;
+    padding: 0.4rem;
+    max-height: 22rem;
+    overflow-y: auto;
+  }
+  .cmdk-item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "label group" "hint group";
+    gap: 0 1rem;
+    padding: 0.6rem 0.75rem;
+    border-radius: 9px;
+    cursor: pointer;
+  }
+  .cmdk-item[hidden] {
+    display: none;
+  }
+  .cmdk-item.active {
+    background: var(--accent-soft);
+  }
+  .cmdk-item-label {
+    grid-area: label;
+    color: var(--text);
+    font-size: var(--step-0);
+  }
+  .cmdk-item-hint {
+    grid-area: hint;
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    color: var(--text-faint);
+  }
+  .cmdk-item-group {
+    grid-area: group;
+    align-self: center;
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+  .cmdk-empty {
+    padding: 1.2rem;
+    text-align: center;
+    color: var(--text-faint);
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+  }
+  .cmdk-empty[hidden] {
+    display: none;
+  }
+
+  @keyframes cmdk-fade {
+    from { opacity: 0; }
+  }
+  @keyframes cmdk-pop {
+    from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .cmdk-backdrop,
+    .cmdk-panel {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  interface CmdkState {
+    active: number;
+  }
+  const state: CmdkState = { active: 0 };
+
+  const $root = () => document.getElementById("cmdk");
+  const $input = () =>
+    document.getElementById("cmdk-input") as HTMLInputElement | null;
+  const $items = () =>
+    Array.from(
+      document.querySelectorAll<HTMLElement>("#cmdk-list .cmdk-item"),
+    );
+  const $visible = () => $items().filter((i) => !i.hidden);
+  const isOpen = () => !!$root() && !$root()!.hidden;
+
+  function paint() {
+    const vis = $visible();
+    $items().forEach((i) => i.classList.remove("active"));
+    const el = vis[state.active];
+    if (el) {
+      el.classList.add("active");
+      el.scrollIntoView({ block: "nearest" });
+    }
+  }
+
+  function filter() {
+    const input = $input();
+    if (!input) return;
+    const q = input.value.trim().toLowerCase();
+    $items().forEach((i) => {
+      const hay =
+        (i.dataset.label || "") + " " + (i.textContent || "").toLowerCase();
+      i.hidden = q.length > 0 && !hay.includes(q);
+    });
+    const empty = document.querySelector<HTMLElement>("#cmdk-list .cmdk-empty");
+    if (empty) empty.hidden = $visible().length > 0;
+    state.active = 0;
+    paint();
+  }
+
+  function openPalette() {
+    const root = $root();
+    const input = $input();
+    if (!root || !input) return;
+    root.hidden = false;
+    input.value = "";
+    filter();
+    requestAnimationFrame(() => input.focus());
+    document.body.style.overflow = "hidden";
+  }
+
+  function closePalette() {
+    const root = $root();
+    if (!root) return;
+    root.hidden = true;
+    document.body.style.overflow = "";
+  }
+
+  function runItem(el?: HTMLElement) {
+    if (!el) return;
+    const href = el.dataset.href!;
+    closePalette();
+    if (href === "#theme") {
+      document.getElementById("theme-toggle")?.click();
+      return;
+    }
+    if (el.dataset.external === "true") {
+      window.open(href, "_blank", "noopener");
+    } else {
+      window.location.href = href;
+    }
+  }
+
+  // Global listeners — attached exactly once for the session.
+  if (!(window as any).__cmdkGlobal) {
+    (window as any).__cmdkGlobal = true;
+
+    document.addEventListener("keydown", (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        isOpen() ? closePalette() : openPalette();
+        return;
+      }
+      if (!isOpen()) return;
+      const vis = $visible();
+      const n = Math.max(vis.length, 1);
+      if (e.key === "Escape") {
+        e.preventDefault();
+        closePalette();
+      } else if (e.key === "ArrowDown") {
+        e.preventDefault();
+        state.active = (state.active + 1) % n;
+        paint();
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        state.active = (state.active - 1 + n) % n;
+        paint();
+      } else if (e.key === "Enter") {
+        e.preventDefault();
+        runItem(vis[state.active]);
+      }
+    });
+
+    // Delegated clicks survive View Transition DOM swaps.
+    document.addEventListener("click", (e) => {
+      const t = e.target as HTMLElement;
+      if (t.closest("#cmdk-trigger")) {
+        e.preventDefault();
+        openPalette();
+      } else if (t.closest("#cmdk [data-close]")) {
+        closePalette();
+      } else {
+        const item = t.closest<HTMLElement>("#cmdk-list .cmdk-item");
+        if (item) runItem(item);
+      }
+    });
+
+    document.addEventListener("input", (e) => {
+      if ((e.target as HTMLElement).id === "cmdk-input") filter();
+    });
+
+    document.addEventListener("pointermove", (e) => {
+      const item = (e.target as HTMLElement).closest<HTMLElement>(
+        "#cmdk-list .cmdk-item",
+      );
+      if (!item) return;
+      const at = $visible().indexOf(item);
+      if (at >= 0 && at !== state.active) {
+        state.active = at;
+        paint();
+      }
+    });
+  }
+
+  // Close on navigation so it never lingers over the next page.
+  document.addEventListener("astro:before-swap", closePalette);
+</script>

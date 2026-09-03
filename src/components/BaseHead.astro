@@ -1,0 +1,58 @@
+---
+import "@fontsource-variable/fraunces"; // needs wght + opsz + SOFT + WONK + italic
+import "@fontsource-variable/inter/wght.css";
+import "@fontsource-variable/jetbrains-mono/wght.css";
+import "../styles/global.css";
+import { site } from "../lib/site";
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** path only, e.g. "/notes" */
+  path?: string;
+}
+
+const {
+  title,
+  description = site.description,
+  path = Astro.url.pathname,
+} = Astro.props;
+
+const fullTitle = title ? `${title} — ${site.name}` : site.title;
+const canonical = new URL(path, Astro.site ?? "https://zhiyuan.dev").toString();
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="generator" content={Astro.generator} />
+
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link
+  rel="alternate"
+  type="application/rss+xml"
+  title={site.name}
+  href="/rss.xml"
+/>
+<meta name="theme-color" content="#0a0a0b" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content="#fbfbf9" media="(prefers-color-scheme: light)" />
+
+<meta property="og:type" content="website" />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:site_name" content={site.domain} />
+<meta name="twitter:card" content="summary_large_image" />
+
+<!-- arm reveal styles only when JS is available, before first paint -->
+<script is:inline>
+  document.documentElement.classList.add("anim-ready");
+  try {
+    var t = localStorage.getItem("theme");
+    if (t === "light" || t === "dark")
+      document.documentElement.dataset.theme = t;
+  } catch (e) {}
+</script>

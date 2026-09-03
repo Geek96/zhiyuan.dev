@@ -1,0 +1,62 @@
+---
+import { ClientRouter } from "astro:transitions";
+import BaseHead from "../components/BaseHead.astro";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+import Grain from "../components/Grain.astro";
+import CommandPalette from "../components/CommandPalette.astro";
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** hide the persistent footer (e.g. on a bespoke landing) */
+  bareFooter?: boolean;
+}
+
+const { title, description, bareFooter = false } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <BaseHead title={title} description={description} />
+    <ClientRouter />
+  </head>
+  <body>
+    <a href="#main" class="skip">Skip to content</a>
+    <Grain />
+    <Nav />
+    <main id="main">
+      <slot />
+    </main>
+    {!bareFooter && <Footer />}
+    <CommandPalette />
+
+    <style>
+      .skip {
+        position: fixed;
+        top: 0.5rem;
+        left: 0.5rem;
+        z-index: 2000;
+        padding: 0.5rem 0.9rem;
+        background: var(--bg-raised);
+        border: 1px solid var(--border-strong);
+        border-radius: 8px;
+        font-family: var(--font-mono);
+        font-size: var(--step--1);
+        transform: translateY(-150%);
+        transition: transform 0.2s var(--ease-out);
+      }
+      .skip:focus {
+        transform: none;
+      }
+      main {
+        padding-top: clamp(3rem, 9vw, 6rem);
+      }
+    </style>
+
+    <script>
+      import "../scripts/enhance.ts";
+    </script>
+  </body>
+</html>

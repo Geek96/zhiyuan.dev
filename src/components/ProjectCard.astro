@@ -1,0 +1,169 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  project: CollectionEntry<"projects">;
+}
+
+const { project } = Astro.props;
+const { data } = project;
+const href = data.url ?? data.repo ?? `#${project.id}`;
+const external = href.startsWith("http");
+const year = data.date.getFullYear();
+---
+
+<a
+  class:list={["card", `span-${data.span}`]}
+  href={href}
+  data-reveal
+  {...external ? { target: "_blank", rel: "noopener" } : {}}
+>
+  <div class="card-top">
+    <span class:list={["status", data.status]}>{data.status}</span>
+    <span class="year">{year}</span>
+  </div>
+
+  <h3 class="card-title">{data.title}</h3>
+  <p class="card-desc">{data.description}</p>
+
+  <div class="card-foot">
+    {data.stack.length > 0 && (
+      <ul class="stack">
+        {data.stack.map((s) => <li>{s}</li>)}
+      </ul>
+    )}
+    <span class="go" aria-hidden="true">{external ? "↗" : "→"}</span>
+  </div>
+</a>
+
+<style>
+  .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1.4rem 1.5rem 1.3rem;
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    transition:
+      border-color 0.25s,
+      transform 0.35s var(--ease-out),
+      background 0.25s;
+  }
+  .card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      18rem 10rem at var(--mx, 50%) var(--my, 0%),
+      var(--accent-soft),
+      transparent 60%
+    );
+    opacity: 0;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  .card:hover {
+    border-color: var(--border-strong);
+    transform: translateY(-2px);
+  }
+  .card:hover::after {
+    opacity: 1;
+  }
+
+  @media (min-width: 720px) {
+    .span-2 {
+      grid-column: span 2;
+    }
+  }
+
+  .card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: var(--step--1);
+  }
+  .status {
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+  .status::before {
+    content: "● ";
+    color: var(--text-faint);
+  }
+  .status.active::before,
+  .status.shipped::before {
+    color: var(--accent-text);
+  }
+  .status.experiment::before {
+    color: #6c8cff;
+  }
+  .year {
+    color: var(--text-faint);
+  }
+
+  .card-title {
+    font-size: var(--step-1);
+    color: var(--text);
+  }
+  .card-desc {
+    color: var(--text-dim);
+    font-size: var(--step-0);
+    line-height: 1.55;
+  }
+
+  .card-foot {
+    margin-top: auto;
+    padding-top: 0.6rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .stack li {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.15em 0.6em;
+  }
+  .go {
+    color: var(--text-faint);
+    transition: transform 0.3s var(--ease-out), color 0.2s;
+  }
+  .card:hover .go {
+    color: var(--accent-text);
+    transform: translate(2px, -2px);
+  }
+</style>
+
+<script>
+  // pointer-tracked glow
+  function bindCards() {
+    document
+      .querySelectorAll<HTMLElement>(".card:not([data-glow])")
+      .forEach((card) => {
+        card.dataset.glow = "1";
+        card.addEventListener("pointermove", (e) => {
+          const r = card.getBoundingClientRect();
+          card.style.setProperty("--mx", `${e.clientX - r.left}px`);
+          card.style.setProperty("--my", `${e.clientY - r.top}px`);
+        });
+      });
+  }
+  document.addEventListener("astro:page-load", bindCards);
+</script>
