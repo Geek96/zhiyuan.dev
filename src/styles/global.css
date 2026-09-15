@@ -19,11 +19,11 @@
   --border: rgba(255, 255, 255, 0.09);
   --border-strong: rgba(255, 255, 255, 0.18);
 
-  --accent: #ff5d3b;
-  --accent-soft: rgba(255, 93, 59, 0.14);
-  --accent-text: #ff7a5c;
+  --accent: #c9a24d;
+  --accent-soft: rgba(201, 162, 77, 0.14);
+  --accent-text: #d9b86a;
 
-  --glow: rgba(255, 93, 59, 0.16);
+  --glow: rgba(201, 162, 77, 0.16);
 
   --font-serif: "Fraunces Variable", "Fraunces", Georgia, "Times New Roman", serif;
   --font-sans: "Inter Variable", "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
