@@ -9,8 +9,8 @@ import { site } from "../lib/site";
       <img
         src={site.photo}
         alt={site.name}
-        width="160"
-        height="160"
+        width="240"
+        height="240"
         onerror="this.remove()"
       />
       <span class="portrait-fallback" aria-hidden="true">{site.name[0]}</span>
@@ -39,8 +39,8 @@ import { site } from "../lib/site";
 
   .portrait {
     position: relative;
-    width: 160px;
-    height: 160px;
+    width: clamp(180px, 26vw, 280px);
+    height: clamp(180px, 26vw, 280px);
     border-radius: 50%;
     overflow: hidden;
     border: 1px solid var(--border-strong);
@@ -61,7 +61,7 @@ import { site } from "../lib/site";
     place-items: center;
     background: linear-gradient(160deg, var(--bg-raised), var(--bg-inset));
     font-family: var(--font-serif);
-    font-size: 3.5rem;
+    font-size: clamp(3.5rem, 8vw, 5.5rem);
     font-variation-settings: "SOFT" 30, "WONK" 0;
     color: var(--accent-text);
   }

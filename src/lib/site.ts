@@ -12,7 +12,7 @@ export const site = {
   // one-line identity, used on /dashboard and in meta tags
   role: "Software engineer & tinkerer",
   location: "Atlanta, GA",
-  email: "zhiyuan.daniel06@gmail.com",
+  email: "zwu676@gatech.edu",
   // shown on the homepage under the photo — write this yourself, it's the
   // first thing anyone reads
   welcome:
@@ -36,6 +36,6 @@ export type Social = { label: string; href: string; handle: string };
 
 export const socials: Social[] = [
   { label: "GitHub", href: "https://github.com/Geek96", handle: "@Geek96" },
-  { label: "Email", href: "mailto:zhiyuan.daniel06@gmail.com", handle: "zhiyuan.daniel06@gmail.com" },
+  { label: "Email", href: "mailto:zwu676@gatech.edu", handle: "zwu676@gatech.edu" },
   { label: "RSS", href: "/rss.xml", handle: "/rss.xml" },
 ];
