@@ -1,191 +1,105 @@
 ---
-import { getCollection } from "astro:content";
 import Base from "../layouts/Base.astro";
-import ProjectCard from "../components/ProjectCard.astro";
 import { site } from "../lib/site";
-
-const notes = (await getCollection("notes", ({ data }) => !data.draft))
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
-  .slice(0, 3);
-
-const projects = (await getCollection("projects"))
-  .filter((p) => p.data.featured)
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
-  .slice(0, 2);
-
-const fmt = (d: Date) =>
-  d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
 ---
 
-<Base>
-  <section class="wrap hero" data-reveal-group>
-    <p class="kicker" data-reveal>
-      <span class="idx">◆</span>
-      {site.role} <span class="sep">/</span>
-      {site.location}
-    </p>
-
-    <h1 class="hero-title" data-reveal>
-      I build small, careful things<br />
-      for the <span class="em">open web</span>.
-    </h1>
-
-    <p class="lead" data-reveal>
-      I&rsquo;m {site.name} — I like plain HTML, sharp typography, tools that get
-      out of the way, and writing down what I learn. This is my corner of the
-      internet: half notebook, half workshop.
-    </p>
-
-    <div class="hero-links" data-reveal>
-      <a class="arrow-link" href="/projects">→&nbsp; See what I&rsquo;m building</a>
-      <a class="arrow-link" href="/notes">→&nbsp; Read the notes</a>
-      <a class="arrow-link" href={`mailto:${site.email}`}>↗&nbsp; Say hello</a>
+<Base bareFooter>
+  <section class="landing" data-reveal-group>
+    <div class="portrait" data-reveal>
+      <img
+        src={site.photo}
+        alt={site.name}
+        width="160"
+        height="160"
+        onerror="this.remove()"
+      />
+      <span class="portrait-fallback" aria-hidden="true">{site.name[0]}</span>
     </div>
-  </section>
 
-  <hr class="rule" />
+    <p class="welcome" data-reveal>{site.welcome}</p>
 
-  <section class="wrap">
-    <div class="section-head">
-      <span class="kicker"><span class="idx">[01]</span> Selected work</span>
-      <a class="arrow-link" href="/projects">All projects</a>
-    </div>
-    <div class="grid" data-reveal-group>
-      {projects.map((project) => <ProjectCard project={project} />)}
-    </div>
-  </section>
-
-  <hr class="rule" />
-
-  <section class="wrap">
-    <div class="section-head">
-      <span class="kicker"><span class="idx">[02]</span> Recent notes</span>
-      <a class="arrow-link" href="/notes">Archive</a>
-    </div>
-    <ul class="notes" data-reveal-group>
-      {
-        notes.map((note) => (
-          <li data-reveal>
-            <a class="note-row" href={`/notes/${note.id}/`}>
-              <time datetime={note.data.date.toISOString()}>
-                {fmt(note.data.date)}
-              </time>
-              <span class="note-title">{note.data.title}</span>
-              <span class="note-go" aria-hidden="true">→</span>
-            </a>
-          </li>
-        ))
-      }
-    </ul>
-  </section>
-
-  <hr class="rule" />
-
-  <section class="wrap now-teaser" data-reveal-group>
-    <span class="kicker" data-reveal><span class="idx">[03]</span> Right now</span>
-    <p class="now-line" data-reveal>
-      Currently heads-down on a planning system for my notes, learning to make
-      the web feel handmade again, and reading more fiction than I have in years.
-    </p>
-    <a class="arrow-link" href="/now" data-reveal>→&nbsp; The full /now page</a>
+    <a class="cta" href="/dashboard" data-reveal data-magnetic="0.15">
+      Enter the dashboard
+      <span aria-hidden="true">→</span>
+    </a>
   </section>
 </Base>
 
 <style>
-  .hero {
-    padding-block: clamp(2rem, 7vw, 5rem) clamp(1rem, 4vw, 2rem);
+  .landing {
+    min-height: calc(100dvh - 58px - 6rem);
     display: flex;
     flex-direction: column;
-    gap: 1.6rem;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 1.75rem;
+    padding-block: clamp(2rem, 8vw, 4rem);
   }
-  .kicker .sep {
-    opacity: 0.4;
-    margin-inline: 0.15em;
+
+  .portrait {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 1px solid var(--border-strong);
+    box-shadow: 0 0 0 6px var(--accent-soft);
   }
-  .hero-title {
-    font-size: var(--step-4);
-    max-width: 18ch;
+  .portrait img {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
-  .hero-title .em {
-    font-style: italic;
+  .portrait-fallback {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(160deg, var(--bg-raised), var(--bg-inset));
+    font-family: var(--font-serif);
+    font-size: 3.5rem;
+    font-variation-settings: "SOFT" 30, "WONK" 0;
     color: var(--accent-text);
-    font-variation-settings: "SOFT" 40, "WONK" 1;
-  }
-  .hero-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.25rem 2rem;
-    margin-top: 0.5rem;
   }
 
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr));
-    gap: 1rem;
+  .welcome {
+    font-family: var(--font-serif);
+    font-size: var(--step-3);
+    line-height: 1.35;
+    max-width: 22ch;
+    color: var(--text);
+    text-wrap: balance;
   }
 
-  .notes {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    border-top: 1px solid var(--border);
-  }
-  .note-row {
-    display: grid;
-    grid-template-columns: 9.5rem 1fr auto;
-    align-items: baseline;
-    gap: 1rem;
-    padding: 1.15rem 0.25rem;
-    border-bottom: 1px solid var(--border);
-    transition: padding-left 0.3s var(--ease-out), background 0.2s;
-  }
-  .note-row:hover {
-    padding-left: 0.9rem;
-    background: linear-gradient(
-      90deg,
-      var(--accent-soft),
-      transparent 40%
-    );
-  }
-  .note-row time {
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
+    padding: 0.85rem 1.5rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
     font-family: var(--font-mono);
     font-size: var(--step--1);
-    color: var(--text-faint);
-  }
-  .note-title {
+    letter-spacing: 0.02em;
     color: var(--text);
-    font-size: var(--step-1);
-    font-family: var(--font-serif);
-    letter-spacing: -0.01em;
+    transition:
+      border-color 0.25s,
+      background 0.25s,
+      color 0.25s;
   }
-  .note-go {
-    color: var(--text-faint);
-    transition: transform 0.3s var(--ease-out), color 0.2s;
-  }
-  .note-row:hover .note-go {
+  .cta:hover {
+    border-color: var(--accent-text);
+    background: var(--accent-soft);
     color: var(--accent-text);
+  }
+  .cta span {
+    transition: transform 0.3s var(--ease-out);
+  }
+  .cta:hover span {
     transform: translateX(3px);
-  }
-
-  .now-teaser {
-    display: flex;
-    flex-direction: column;
-    gap: 1.1rem;
-  }
-  .now-line {
-    font-family: var(--font-serif);
-    font-size: var(--step-2);
-    line-height: 1.4;
-    max-width: 24ch;
-    color: var(--text);
-  }
-
-  @media (max-width: 560px) {
-    .note-row {
-      grid-template-columns: 1fr auto;
-    }
-    .note-row time {
-      grid-column: 1 / -1;
-    }
   }
 </style>
